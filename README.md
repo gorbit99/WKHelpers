@@ -61,12 +61,19 @@ const button = window.createButton({
     japaneseText: "...",
     englishText: "...",
     color: "...",
-    hoverColor: "..."
+    hoverColor: "...",
+    withDropdown: {
+      bgColor: "...",
+    },
 });
 ```
 
-The color and hoverColor arguments are optional, they set the color the button
-will take up when clicked or being hovered over.
+The color, hoverColor and withDropdown arguments are optional, they set the color the button
+will take up when clicked or being hovered over and the dropdown menu of the
+button.
+
+The dropdown can also be created using `Button#attachDropdown(config)` with the
+same object the withModal option recieved.
 
 These are the available methods on the button instance:
 
@@ -76,6 +83,9 @@ These are the available methods on the button instance:
   deactivated
 - `Button#setState(state)` - explicitly set the state of the button, useful if
   you have other methods for cancelling the attached action
+- `Button#attachDropdown(config)` - attaches a dropdown to the button
+- `Button#setDropdownContent(content)` - sets the content of the dropdown,
+  accepts either an HTML string or a node
 
 For more examples, check out my [Bookmark
 Userscript](https://greasyfork.org/scripts/441006-wk-extra-study-mover/code)
