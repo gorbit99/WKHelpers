@@ -8,7 +8,7 @@
 // @grant        none
 // @license      MIT
 // ==/UserScript==
-'use strict';
+"use strict";
 
 
 class Modal {
@@ -21,7 +21,7 @@ class Modal {
 
   constructor(config) {
     this.#container = document.createElement("div");
-    document.body.append(this.#container);
+    document.querySelector(".dashboard").append(this.#container);
     this.#container.style.position = "fixed";
     this.#container.style.inset = "0";
     this.#container.style.display = "none";
@@ -36,10 +36,10 @@ class Modal {
       border-radius: 5px;
       padding: 16px 12px 12px;
       pointer-events: auto;
+      margin: 0;
     `;
 
     const itemContainerStyle = `
-      background: white;
       border-radius: 5px;
       padding: 16px;
       display: flex;
@@ -47,12 +47,12 @@ class Modal {
     `;
 
     this.#container.innerHTML = `
-      <div style="${modalStyle}">
+      <section style="${modalStyle}" class="cidwwa-modal">
         <div style="display: flex; justify-content: space-between">
           <h3 style="margin: 0 0 10px 12px">${config.title ?? ""}</h3>
           <i class="fa fa-times" style="font-size: 20px; cursor: pointer;"></i>
         </div>
-        <div style="${itemContainerStyle}" class="modal-itemcontainer">
+        <div style="${itemContainerStyle}" class="modal-itemcontainer bg-white">
 
         </div>
       </div>
@@ -147,7 +147,7 @@ class WKButton {
       this.#state = !this.#state;
       this.#button.dataset.expanded = this.#state;
       if (this.#dropdown) {
-        this.#dropdown.dataset.expanded = this.#state;;
+        this.#dropdown.dataset.expanded = this.#state;
       }
       if (this.#state) {
         this.#onTurnOn.forEach((callback) => callback());
@@ -164,6 +164,7 @@ class WKButton {
     }
 
     this.#dropdown = document.createElement("div");
+    this.#dropdown.style.zIndex = 899;
     this.#dropdown.classList.add("sitemap__expandable-chunk");
     this.#dropdown.dataset.expanded = false;
     this.#container.append(this.#dropdown);
