@@ -24,7 +24,12 @@ class Modal {
 
   constructor(config) {
     this.#container = document.createElement("div");
-    document.querySelector(".dashboard").append(this.#container);
+    const dashboard = document.querySelector(".dashboard");
+    if (dashboard) {
+      dashboard.append(this.#container);
+    } else {
+      document.body.append(this.#container);
+    }
     this.#container.style.position = "fixed";
     this.#container.style.inset = "0";
     this.#container.style.display = "none";
