@@ -31,6 +31,19 @@ To use modals, create one, by doing:
 const modal = window.createModal({title: "My Modal"});
 ```
 
+The following values can be provided to the createModal function:
+
+- title (required): string - Sets the title of the modal
+- preventDragging: boolean - If true, the modal won't be made draggable, default
+  false
+- tintBackground: boolean - If true, the background will be tinted black,
+  default false
+- clickOutAction: Enum - The action that happens if the user clicks outside the
+  modal area, possible values:
+    - "none", default, the user can click out and interact with other elements
+    - "block", nothing happens, the user can't interact with other elements
+    - "close", the modal will be closed
+
 After you've done this, you can set the content of the modal using:
 
 ```js

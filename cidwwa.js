@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CIDWWA
 // @namespace    http://tampermonkey.net/
-// @version      0.1.2
+// @version      0.2.0
 // @description  Code I don't want to write again
 // @author       Gorbit99
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=wanikani.com
@@ -14,10 +14,13 @@
 class Modal {
   #container;
   #itemContainer;
+  #modal;
 
   #open = false;
   #onOpen = [];
   #onClose = [];
+
+  #draggable;
 
   constructor(config) {
     this.#container = document.createElement("div");
@@ -25,18 +28,25 @@ class Modal {
     this.#container.style.position = "fixed";
     this.#container.style.inset = "0";
     this.#container.style.display = "none";
-    this.#container.style.justifyContent = "center";
-    this.#container.style.alignItems = "center";
-    this.#container.style.pointerEvents = "none";
+    if ((config.clickOutAction ?? "none") === "none") {
+      this.#container.style.pointerEvents = "none";
+    } else {
+      this.#container.style.pointerEvents = "auto";
+    }
     this.#container.style.zIndex = "999";
+    this.#container.style.background =
+      config.tintBackground ? "#000a" : "transparent";
 
-    const modalStyle = `
+    this.#draggable = !config.preventDragging;
+
+    let modalStyle = `
       background: #f4f4f4;
       border: 1px solid black;
       border-radius: 5px;
       padding: 16px 12px 12px;
       pointer-events: auto;
       margin: 0;
+      position: absolute;
     `;
 
     const itemContainerStyle = `
@@ -46,28 +56,124 @@ class Modal {
       justify-content: center;
     `;
 
+    const headerStyle = `
+      display: flex;
+      justify-content: space-between;
+      user-select: none;
+    `;
+
+    let dragStyle = `
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 48px;
+      width: calc(100% - 48px);
+    `;
+
+    if (config.preventDragging) {
+      modalStyle += `
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      `;
+    } else {
+      dragStyle += `
+        cursor: move;
+      `;
+    }
+
     this.#container.innerHTML = `
       <section style="${modalStyle}" class="cidwwa-modal">
-        <div style="display: flex; justify-content: space-between">
+        <div style="${headerStyle}" class="cidwwa-header">
           <h3 style="margin: 0 0 10px 12px">${config.title ?? ""}</h3>
           <i class="fa fa-times" style="font-size: 20px; cursor: pointer;"></i>
         </div>
+        <div class="cidwwa-drag" style="${dragStyle}"></div>
         <div style="${itemContainerStyle}" class="modal-itemcontainer bg-white">
 
         </div>
       </div>
     `;
 
+    if (config.clickOutAction === "close") {
+      this.#container.addEventListener("click", () => this.close());
+    }
+
     this.#itemContainer = this.#container.querySelector(".modal-itemcontainer");
     this.#container.querySelector("i").addEventListener("click", () => this.close());
+
+    if (!config.preventDragging) {
+      const drag = this.#container.querySelector(".cidwwa-drag");
+      this.#modal = this.#container.querySelector(".cidwwa-modal");
+
+      let startX;
+      let startY;
+      let isDragging = false;
+      drag.addEventListener("mousedown", (e) => {
+        if (e.button !== 0) {
+          return;
+        }
+        e.preventDefault();
+        startX = e.offsetX;
+        startY = e.offsetY;
+        isDragging = true;
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (!isDragging) {
+          return;
+        }
+        e.preventDefault();
+        const mousePosX = e.pageX;
+        const mousePosY = e.pageY;
+
+        let newPosX = mousePosX - startX;
+        let newPosY = mousePosY - startY;
+
+        const screenWidth = document.body.clientWidth;
+        const screenHeight = document.body.clientHeight;
+
+        newPosX = Math.min(Math.max(newPosX, 0), screenWidth - this.#modal.offsetWidth - 1);
+        newPosY = Math.min(Math.max(newPosY, 0), screenHeight - this.#modal.offsetHeight - 1);
+
+        this.#modal.style.left = `${newPosX}px`;
+        this.#modal.style.top = `${newPosY}px`;
+      });
+
+      window.addEventListener("mouseup", (e) => {
+        if (e.button !== 0) {
+          return;
+        }
+        e.preventDefault();
+        isDragging = false;
+      });
+
+    }
+
+    this.#modal.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
   }
 
   toggle() {
     this.#open = !this.#open;
-    this.#container.style.display = this.#open ? "flex" : "none";
+    this.#container.style.display = this.#open ? "block" : "none";
 
     if (this.#open) {
       this.#onOpen.forEach((callback) => callback());
+      if (this.#draggable) {
+        const screenWidth = document.body.clientWidth;
+        const screenHeight = document.body.clientHeight;
+
+        const modalWidth = this.#modal.offsetWidth;
+        const modalHeight = this.#modal.offsetHeight;
+
+        const newPosX = (screenWidth - modalWidth) / 2;
+        const newPosY = (screenHeight - modalHeight) / 2;
+
+        this.#modal.style.left = `${newPosX}px`;
+        this.#modal.style.top = `${newPosY}px`;
+      }
     }
     else {
       this.#onClose.forEach((callback) => callback());
