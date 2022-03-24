@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CIDWWA
 // @namespace    http://tampermonkey.net/
-// @version      0.2.0
+// @version      0.2.1
 // @description  Code I don't want to write again
 // @author       Gorbit99
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=wanikani.com
@@ -10,6 +10,7 @@
 // ==/UserScript==
 "use strict";
 
+const version = 1;
 
 class Modal {
   #container;
@@ -239,10 +240,6 @@ class WKButton {
         </button>
     `;
 
-    if (config.withDropdown) {
-      this.attachDropdown(config.withDropdown);
-    }
-
     this.#button = this.#container.querySelector(".wk-custom-button");
 
     if (config.color) {
@@ -255,11 +252,7 @@ class WKButton {
     }
 
     this.#button.addEventListener("click", () => {
-      this.#state = !this.#state;
-      this.#button.dataset.expanded = this.#state;
-      if (this.#dropdown) {
-        this.#dropdown.dataset.expanded = this.#state;
-      }
+      this.setState(!this.#state);
       if (this.#state) {
         this.#onTurnOn.forEach((callback) => callback());
       }
@@ -267,6 +260,10 @@ class WKButton {
         this.#onTurnOff.forEach((callback) => callback());
       }
     });
+
+    if (config.withDropdown) {
+      this.attachDropdown(config.withDropdown);
+    }
   }
 
   attachDropdown(config) {
@@ -281,6 +278,23 @@ class WKButton {
     this.#container.append(this.#dropdown);
 
     this.#dropdown.style.setProperty("--dropdown-background", config.bgColor);
+
+    let clickIn = false;
+    document.addEventListener("click", () => {
+      if (!clickIn && this.#state) {
+        this.setState(false);
+        this.#onTurnOff.forEach((callback) => callback());
+      }
+      clickIn = false;
+    });
+
+    this.#dropdown.addEventListener("click", () => {
+      clickIn = true;
+    });
+
+    this.#button.addEventListener("click", () => {
+      clickIn = true;
+    });
   }
 
   setDropdownContent(content) {
@@ -309,7 +323,9 @@ class WKButton {
   }
 }
 
-if (!window.createModal) {
+if (!window.cidwwaVersion || window.cidwwaVersion < version) {
+  window.cidwwaVersion = version;
+
   window.createModal = function(config) {
     return new Modal(config);
   };
