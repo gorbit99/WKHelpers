@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CIDWWA
 // @namespace    http://tampermonkey.net/
-// @version      0.2.1
+// @version      0.2.2
 // @description  Code I don't want to write again
 // @author       Gorbit99
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=wanikani.com
@@ -10,7 +10,7 @@
 // ==/UserScript==
 "use strict";
 
-const version = 1;
+const version = 2;
 
 class Modal {
   #container;
@@ -39,7 +39,7 @@ class Modal {
     } else {
       this.#container.style.pointerEvents = "auto";
     }
-    this.#container.style.zIndex = "999";
+    this.#container.style.zIndex = "9999";
     this.#container.style.background =
       config.tintBackground ? "#000a" : "transparent";
 
@@ -119,7 +119,6 @@ class Modal {
         if (e.button !== 0) {
           return;
         }
-        e.preventDefault();
         startX = e.offsetX;
         startY = e.offsetY;
         isDragging = true;
@@ -130,8 +129,8 @@ class Modal {
           return;
         }
         e.preventDefault();
-        const mousePosX = e.pageX;
-        const mousePosY = e.pageY;
+        const mousePosX = e.clientX;
+        const mousePosY = e.clientY;
 
         let newPosX = mousePosX - startX;
         let newPosY = mousePosY - startY;
@@ -147,10 +146,13 @@ class Modal {
       });
 
       window.addEventListener("mouseup", (e) => {
+        if (!isDragging) {
+          return;
+        }
+
         if (e.button !== 0) {
           return;
         }
-        e.preventDefault();
         isDragging = false;
       });
 
