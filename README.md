@@ -16,7 +16,7 @@ To use the script, simply add the following line to the beginning block of your
 userscript:
 
 ```js
-// @require https://greasyfork.org/scripts/441792-cidwwa/code/CIDWWA.js?version=1032310
+// @require https://greasyfork.org/scripts/441792-cidwwa/code/CIDWWA.js?version=1060343
 ```
 
 Afterwards you are ready to use the included features.
