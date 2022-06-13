@@ -99,7 +99,7 @@ These are the available methods on the button instance:
 - `Button#attachDropdown(config)` - attaches a dropdown to the button
 - `Button#setDropdownContent(content)` - sets the content of the dropdown,
   accepts either an HTML string or a node
-- Button#attachSubtext() - attaches a span below the button and returns it
+- `Button#attachSubtext()` - attaches a span below the button and returns it
 
 For more examples, check out my [Bookmark
 Userscript](https://greasyfork.org/scripts/441006-wk-extra-study-mover/code)
