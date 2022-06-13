@@ -10,7 +10,7 @@
 // ==/UserScript==
 "use strict";
 
-const version = 2;
+const version = 3;
 
 class Modal {
   #container;
@@ -306,6 +306,36 @@ class WKButton {
       this.#dropdown.children.forEach((child) => child.remove());
       this.#dropdown.append(content);
     }
+  }
+
+  attachSubtext() {
+    let subtext = this.#button.parentNode.querySelector(".button-subtext");
+    if (subtext) {
+      return subtext;
+    }
+
+    const subtextContainerStyle = `
+      width: 100%;
+      display: inline-flex;
+      justify-content: center;
+      position: absolute;
+      margin-top: 4px;
+    `;
+
+    const subtextStyle = `
+      color: #999;
+      font-size: 14px;
+      line-height: 0;
+    `;
+
+    this.#button.insertAdjacentHTML("afterend", `
+      <span class="button-subtext-container" style="${subtextContainerStyle}">
+        <span class="button-subtext" style="${subtextStyle}"></span>
+      </span>
+    `);
+
+    subtext = this.#button.parentNode.querySelector(".button-subtext");
+    return subtext;
   }
 
   onTurnOn(callback) {
