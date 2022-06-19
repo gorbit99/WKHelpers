@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CIDWWA
 // @namespace    http://tampermonkey.net/
-// @version      0.2.3
+// @version      0.3.0
 // @description  Code I don't want to write again
 // @author       Gorbit99
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=wanikani.com
@@ -10,7 +10,7 @@
 // ==/UserScript==
 "use strict";
 
-const version = 3;
+const version = 4;
 
 class Modal {
   #container;
@@ -60,6 +60,10 @@ class Modal {
       padding: 16px;
       display: flex;
       justify-content: center;
+      overflow-x: ${config.overflowX ?? "initial"};
+      overflow-y: ${config.overflowY ?? "initial"};
+      height: ${config.height};
+      width: ${config.width};
     `;
 
     const headerStyle = `
@@ -355,6 +359,54 @@ class WKButton {
   }
 }
 
+class Style {
+  #styleElement;
+
+  constructor() {
+    this.#styleElement = document.createElement("style");
+    document.head.append(this.#styleElement);
+  }
+
+  setStyle(styleData) {
+    this.#styleElement.innerHTML = "";
+
+    this.addStyle(styleData);
+  }
+
+  addStyle(styleData) {
+    const blocks = [];
+    for (let key in styleData) {
+      blocks.push(this.#parseStyleBlock(key, styleData[key]));
+    }
+
+    this.#styleElement.innerHTML += blocks.join("\n");
+  }
+
+  #parseStyleBlock(selector, styleBlock) {
+    const properties = [];
+    const blocks = [];
+    for (let key in styleBlock) {
+      if (typeof styleBlock[key] === "object") {
+        let newSelector = key;
+        if (newSelector.includes("&")) {
+          newSelector = newSelector.replaceAll("&", selector);
+        } else {
+          newSelector = selector + " " + newSelector;
+        }
+        blocks.push(this.#parseStyleBlock(newSelector, styleBlock[key]));
+      } else {
+        let property =
+          key.replaceAll(/[A-Z]/g, (match) => "-" + match.toLowerCase());
+        properties.push(property + ":" + styleBlock[key]);
+      }
+    }
+
+    blocks.unshift(`${selector}{${properties.join(";")}}`);
+
+    return blocks.join("\n");
+  }
+}
+
 if (!window.cidwwaVersion || window.cidwwaVersion < version) {
   window.cidwwaVersion = version;
 
@@ -364,6 +416,10 @@ if (!window.cidwwaVersion || window.cidwwaVersion < version) {
 
   window.createButton = function(config) {
     return new WKButton(config);
+  };
+
+  window.createStyle = function(config) {
+    return new Style(config);
   };
 
   const styleElement = document.createElement("style");
