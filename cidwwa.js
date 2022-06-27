@@ -223,6 +223,10 @@ class Modal {
       this.#itemContainer.append(content);
     }
   }
+
+  resetScroll() {
+    this.#itemContainer.scrollTo(0, 0);
+  }
 }
 
 class WKButton {
