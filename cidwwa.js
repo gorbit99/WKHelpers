@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CIDWWA
 // @namespace    http://tampermonkey.net/
-// @version      0.3.0
+// @version      0.3.1
 // @description  Code I don't want to write again
 // @author       Gorbit99
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=wanikani.com
@@ -10,7 +10,7 @@
 // ==/UserScript==
 "use strict";
 
-const version = 4;
+const version = 5;
 
 class Modal {
   #container;
@@ -45,61 +45,87 @@ class Modal {
 
     this.#draggable = !config.preventDragging;
 
-    let modalStyle = `
-      background: #f4f4f4;
-      border: 1px solid black;
-      border-radius: 5px;
-      padding: 16px 12px 12px;
-      pointer-events: auto;
-      margin: 0;
-      position: absolute;
-    `;
+    const modalStyle = new Style();
+    modalStyle.setStyle({
+      ".cidwwa-modal": {
+        background: "#f4f4f4",
+        border: "1px solid black",
+        borderRadius: "5px",
+        padding: "16px 12px 16px",
+        pointerEvents: "auto",
+        margin: "0",
+        position: "absolute",
+      }
+    });
 
-    const itemContainerStyle = `
-      border-radius: 5px;
-      padding: 16px;
-      display: flex;
-      justify-content: center;
-      overflow-x: ${config.overflowX ?? "initial"};
-      overflow-y: ${config.overflowY ?? "initial"};
-      height: ${config.height};
-      width: ${config.width};
-    `;
+    const itemContainerStyle = new Style();
+    itemContainerStyle.setStyle({
+      ".modal-itemcontainer": {
+        background: "white",
+        borderRadius: "5px",
+        padding: "16px",
+        display: "flex",
+        justifyContent: "center",
+        overflowX: config.overflowX ?? "initial",
+        overflowY: config.overflowY ?? "initial",
+        height: config.height ?? "initial",
+        width: config.width ?? "initial",
+      }
+    });
 
-    const headerStyle = `
-      display: flex;
-      justify-content: space-between;
-      user-select: none;
-    `;
+    const modalTitleStyle = new Style();
+    modalTitleStyle.setStyle({
+      ".cidwwa-modal-title": {
+        fontSize: "18px",
+        fontFamily: "'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+        fontWeight: "300",
+      }
+    });
 
-    let dragStyle = `
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 48px;
-      width: calc(100% - 48px);
-    `;
+    const headerStyle = new Style();
+    headerStyle.setStyle({
+      ".cidwwa-header": {
+        display: "flex",
+        justifyContent: "space-between",
+        userSelect: "none",
+      }
+    });
+
+    const dragStyle = new Style();
+    dragStyle.setStyle({
+      ".cidwwa-drag": {
+        position: "absolute",
+        top: "0",
+        left: "0",
+        height: "48px",
+        width: "calc(100% - 48px)",
+      }
+    });
 
     if (config.preventDragging) {
-      modalStyle += `
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-      `;
+      modalStyle.addStyle({
+        ".cidwwa-modal": {
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }
+      });
     } else {
-      dragStyle += `
-        cursor: move;
-      `;
+      dragStyle.addStyle({
+        ".cidwwa-drag": {
+          cursor: "move",
+        }
+      });
     }
 
     this.#container.innerHTML = `
-      <section style="${modalStyle}" class="cidwwa-modal">
-        <div style="${headerStyle}" class="cidwwa-header">
-          <h3 style="margin: 0 0 10px 12px">${config.title ?? ""}</h3>
+      <section class="cidwwa-modal">
+        <div class="cidwwa-header">
+          <h3 style="margin: 0 0 10px 12px" class="cidwwa-modal-title">${config.title ?? ""}</h3>
           <i class="fa fa-times" style="font-size: 20px; cursor: pointer;"></i>
         </div>
-        <div class="cidwwa-drag" style="${dragStyle}"></div>
-        <div style="${itemContainerStyle}" class="modal-itemcontainer bg-white">
+        <div class="cidwwa-drag"></div>
+        <div class="modal-itemcontainer">
 
         </div>
       </div>
@@ -239,9 +265,7 @@ class WKButton {
   #state = false;
 
   constructor(config) {
-    const sitemap = document.querySelector("#sitemap");
     this.#container = document.createElement("li");
-    sitemap.insertBefore(this.#container, sitemap.firstChild);
     this.#container.classList.add("sitemap__section");
     this.#container.innerHTML = `
         <button class="sitemap__section-header wk-custom-button">
@@ -249,6 +273,22 @@ class WKButton {
             <span lang="en">${config.englishText}</span>
         </button>
     `;
+
+    const addToSite = () => {
+      const sitemap = document.querySelector("#sitemap,#sitmap");
+      sitemap.insertBefore(this.#container, sitemap.firstChild);
+    };
+
+    addToSite();
+
+    const observer = new MutationObserver(() => {
+      if (!document.body.contains(this.#container)) {
+        addToSite();
+      }
+    });
+    observer.observe(document.body, {
+      childList: true,
+    });
 
     this.#button = this.#container.querySelector(".wk-custom-button");
 
