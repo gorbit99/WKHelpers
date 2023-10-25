@@ -10,7 +10,7 @@
 // ==/UserScript==
 "use strict";
 
-const version = 5;
+const version = 6;
 
 class Modal {
   #container;
@@ -40,28 +40,29 @@ class Modal {
       this.#container.style.pointerEvents = "auto";
     }
     this.#container.style.zIndex = "9999";
-    this.#container.style.background =
-      config.tintBackground ? "#000a" : "transparent";
+    this.#container.style.background = config.tintBackground
+      ? "#000a"
+      : "transparent";
 
     this.#draggable = !config.preventDragging;
 
     const modalStyle = new Style();
     modalStyle.setStyle({
       ".cidwwa-modal": {
-        background: "#f4f4f4",
+        background: "var(--color-menu,#f4f4f4)",
         border: "1px solid black",
         borderRadius: "5px",
         padding: "16px 12px 16px",
         pointerEvents: "auto",
         margin: "0",
         position: "absolute",
-      }
+      },
     });
 
     const itemContainerStyle = new Style();
     itemContainerStyle.setStyle({
       ".modal-itemcontainer": {
-        background: "white",
+        background: "var(--color-menu, white)",
         borderRadius: "5px",
         padding: "16px",
         display: "flex",
@@ -70,16 +71,17 @@ class Modal {
         overflowY: config.overflowY ?? "initial",
         height: config.height ?? "initial",
         width: config.width ?? "initial",
-      }
+      },
     });
 
     const modalTitleStyle = new Style();
     modalTitleStyle.setStyle({
       ".cidwwa-modal-title": {
         fontSize: "18px",
-        fontFamily: "'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+        fontFamily:
+          "'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif",
         fontWeight: "300",
-      }
+      },
     });
 
     const headerStyle = new Style();
@@ -88,7 +90,7 @@ class Modal {
         display: "flex",
         justifyContent: "space-between",
         userSelect: "none",
-      }
+      },
     });
 
     const dragStyle = new Style();
@@ -99,7 +101,7 @@ class Modal {
         left: "0",
         height: "48px",
         width: "calc(100% - 48px)",
-      }
+      },
     });
 
     if (config.preventDragging) {
@@ -108,23 +110,25 @@ class Modal {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-        }
+        },
       });
     } else {
       dragStyle.addStyle({
         ".cidwwa-drag": {
           cursor: "move",
-        }
+        },
       });
     }
 
     this.#container.innerHTML = `
       <section class="cidwwa-modal">
         <div class="cidwwa-header">
-          <h3 style="margin: 0 0 10px 12px" class="cidwwa-modal-title">${config.title ?? ""}</h3>
+          <h3 style="margin: 0 0 10px 12px" class="cidwwa-modal-title">${
+            config.title ?? ""
+          }</h3>
           <i class="fa fa-times" style="font-size: 20px; cursor: pointer;"></i>
         </div>
-        <div class="cidwwa-drag"></div>
+        <div class="cidwwa-drag" style="${dragStyle}"></div>
         <div class="modal-itemcontainer">
 
         </div>
@@ -136,7 +140,9 @@ class Modal {
     }
 
     this.#itemContainer = this.#container.querySelector(".modal-itemcontainer");
-    this.#container.querySelector("i").addEventListener("click", () => this.close());
+    this.#container
+      .querySelector("i")
+      .addEventListener("click", () => this.close());
 
     if (!config.preventDragging) {
       const drag = this.#container.querySelector(".cidwwa-drag");
@@ -168,8 +174,14 @@ class Modal {
         const screenWidth = document.body.clientWidth;
         const screenHeight = document.body.clientHeight;
 
-        newPosX = Math.min(Math.max(newPosX, 0), screenWidth - this.#modal.offsetWidth - 1);
-        newPosY = Math.min(Math.max(newPosY, 0), screenHeight - this.#modal.offsetHeight - 1);
+        newPosX = Math.min(
+          Math.max(newPosX, 0),
+          screenWidth - this.#modal.offsetWidth - 1,
+        );
+        newPosY = Math.min(
+          Math.max(newPosY, 0),
+          screenHeight - this.#modal.offsetHeight - 1,
+        );
 
         this.#modal.style.left = `${newPosX}px`;
         this.#modal.style.top = `${newPosY}px`;
@@ -185,7 +197,6 @@ class Modal {
         }
         isDragging = false;
       });
-
     }
 
     this.#modal.addEventListener("click", (e) => {
@@ -212,8 +223,7 @@ class Modal {
         this.#modal.style.left = `${newPosX}px`;
         this.#modal.style.top = `${newPosY}px`;
       }
-    }
-    else {
+    } else {
       this.#onClose.forEach((callback) => callback());
     }
     return this.#open;
@@ -305,8 +315,7 @@ class WKButton {
       this.setState(!this.#state);
       if (this.#state) {
         this.#onTurnOn.forEach((callback) => callback());
-      }
-      else {
+      } else {
         this.#onTurnOff.forEach((callback) => callback());
       }
     });
@@ -376,11 +385,14 @@ class WKButton {
       line-height: 0;
     `;
 
-    this.#button.insertAdjacentHTML("afterend", `
+    this.#button.insertAdjacentHTML(
+      "afterend",
+      `
       <span class="button-subtext-container" style="${subtextContainerStyle}">
         <span class="button-subtext" style="${subtextStyle}"></span>
       </span>
-    `);
+    `,
+    );
 
     subtext = this.#button.parentNode.querySelector(".button-subtext");
     return subtext;
@@ -439,8 +451,10 @@ class Style {
         }
         blocks.push(this.#parseStyleBlock(newSelector, styleBlock[key]));
       } else {
-        let property =
-          key.replaceAll(/[A-Z]/g, (match) => "-" + match.toLowerCase());
+        let property = key.replaceAll(
+          /[A-Z]/g,
+          (match) => "-" + match.toLowerCase(),
+        );
         properties.push(property + ":" + styleBlock[key]);
       }
     }
@@ -454,15 +468,15 @@ class Style {
 if (!window.cidwwaVersion || window.cidwwaVersion < version) {
   window.cidwwaVersion = version;
 
-  window.createModal = function(config) {
+  window.createModal = function (config) {
     return new Modal(config);
   };
 
-  window.createButton = function(config) {
+  window.createButton = function (config) {
     return new WKButton(config);
   };
 
-  window.createStyle = function(config) {
+  window.createStyle = function (config) {
     return new Style(config);
   };
 
@@ -482,7 +496,7 @@ if (!window.cidwwaVersion || window.cidwwaVersion < version) {
 
     .wk-custom-button + .sitemap__expandable-chunk,
     .wk-custom-button + .sitemap__expandable-chunk:before {
-      background-color: var(--dropdown-background);
+      background-color: var(--color-menu, var(--dropdown-background));
     }
   `;
 }
