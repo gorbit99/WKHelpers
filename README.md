@@ -28,7 +28,7 @@ Afterwards you are ready to use the included features.
 To use modals, create one, by doing:
 
 ```js
-const modal = window.createModal({title: "My Modal"});
+const modal = window.createModal({ title: "My Modal" });
 ```
 
 The following values can be provided to the createModal function:
@@ -40,16 +40,15 @@ The following values can be provided to the createModal function:
   default false
 - clickOutAction: Enum - The action that happens if the user clicks outside the
   modal area, possible values:
-    - "none", default, the user can click out and interact with other elements
-    - "block", nothing happens, the user can't interact with other elements
-    - "close", the modal will be closed
+  - "none", default, the user can click out and interact with other elements
+  - "block", nothing happens, the user can't interact with other elements
+  - "close", the modal will be closed
 - width: html width string (number + unit) - The actual width of the modal
 - height: html height string (number + unit) - The actual height of the modal
 - overflow-x: html overflow value - The overflow behaviour of the container in
   the x direction
 - overflow-y: html overflow value - The overflow behaviour of the container in
   the y direction
-
 
 After you've done this, you can set the content of the modal using:
 
@@ -78,13 +77,13 @@ To use a button, create one, by doing:
 
 ```js
 const button = window.createButton({
-    japaneseText: "...",
-    englishText: "...",
-    color: "...",
-    hoverColor: "...",
-    withDropdown: {
-      bgColor: "...",
-    },
+  japaneseText: "...",
+  englishText: "...",
+  color: "...",
+  hoverColor: "...",
+  withDropdown: {
+    bgColor: "...",
+  },
 });
 ```
 
@@ -130,7 +129,7 @@ Both methods take in a style object of the form:
     display: "flex",
     flexDirection: "column",
     color: "red",
-    
+
     ".my-child": {
       alignSelf: "flex-end",
     }
