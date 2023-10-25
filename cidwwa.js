@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CIDWWA
 // @namespace    http://tampermonkey.net/
-// @version      0.3.1
+// @version      0.3.2
 // @description  Code I don't want to write again
 // @author       Gorbit99
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=wanikani.com
